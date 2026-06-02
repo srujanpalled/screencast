@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  // Base URL — change this if deploying to a subdirectory
-  base: '/',
+  // Base URL for GitHub Pages deployment
+  base: '/screencast/',
   
   server: {
     // Open browser on dev start
