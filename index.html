@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ScreenCast — Private Screen Sharing</title>
+  <meta name="description" content="Share your screen privately. No sign-up, no downloads, no servers. Just a link." />
+  <meta name="theme-color" content="#0a0a1a" />
+  <link rel="manifest" href="/screencast/manifest.json" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/screencast/assets/index-BCQMFZEY.js"></script>
+  <link rel="stylesheet" crossorigin href="/screencast/assets/index-COfyulmp.css">
+</head>
+<body>
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BACKGROUND PARTICLES                        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="bg-particles" id="bgParticles"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- VIEWER MODE — Generate link & watch screen  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div id="viewerMode" class="mode hidden">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <span class="logo-text">ScreenCast</span>
+      </div>
+      <div class="privacy-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>End-to-End Encrypted</span>
+      </div>
+    </header>
+
+    <!-- State: Idle — Generate Link -->
+    <div id="viewerIdle" class="view-state">
+      <div class="glass-card hero-card">
+        <div class="hero-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="url(#iconGradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <defs>
+              <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#a78bfa"/>
+                <stop offset="100%" style="stop-color:#6366f1"/>
+              </linearGradient>
+            </defs>
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </div>
+        <h1 class="hero-title">Private Screen Viewing</h1>
+        <p class="hero-subtitle">Generate a link, send it to someone — their screen appears here. No trace, no logs, fully encrypted.</p>
+        <button id="btnGenerate" class="btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          Generate Link
+        </button>
+        <div class="features-grid">
+          <div class="feature">
+            <div class="feature-icon">🔒</div>
+            <span>Encrypted P2P</span>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">👻</div>
+            <span>No Trace</span>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <span>Instant</span>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🆓</div>
+            <span>Free Forever</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State: Waiting — Link generated, waiting for sharer -->
+    <div id="viewerWaiting" class="view-state hidden">
+      <div class="glass-card">
+        <div class="status-waiting">
+          <div class="pulse-ring">
+            <div class="pulse-dot"></div>
+          </div>
+          <h2>Waiting for connection...</h2>
+          <p class="status-hint">Send this link to the person whose screen you want to see</p>
+        </div>
+        <div class="link-box">
+          <div class="link-display" id="linkDisplay">
+            <span id="linkText"></span>
+          </div>
+          <div class="link-actions">
+            <button id="btnCopy" class="btn-secondary" title="Copy link">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span id="copyLabel">Copy</span>
+            </button>
+            <button id="btnNewLink" class="btn-ghost" title="Generate new link">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="security-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span>Link expires after one use. No data is stored.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- State: Connected — Viewing screen -->
+    <div id="viewerConnected" class="view-state hidden">
+      <div class="viewer-screen">
+        <div class="screen-toolbar">
+          <div class="toolbar-left">
+            <div class="connection-indicator connected">
+              <div class="indicator-dot"></div>
+              <span>Live</span>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <button id="btnFullscreen" class="toolbar-btn" title="Fullscreen">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 3 21 3 21 9"/>
+                <polyline points="9 21 3 21 3 15"/>
+                <line x1="21" y1="3" x2="14" y2="10"/>
+                <line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </button>
+            <button id="btnDisconnect" class="toolbar-btn danger" title="Disconnect">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="video-container">
+          <video id="remoteVideo" autoplay playsinline></video>
+          <div id="videoOverlay" class="video-overlay hidden">
+            <div class="overlay-message">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="1" y1="1" x2="23" y2="23"/>
+                <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+                <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+                <path d="M10.71 5.05A16 16 0 0 1 22.56 9"/>
+                <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                <line x1="12" y1="20" x2="12.01" y2="20"/>
+              </svg>
+              <p>Connection lost</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State: Disconnected -->
+    <div id="viewerDisconnected" class="view-state hidden">
+      <div class="glass-card">
+        <div class="disconnected-state">
+          <div class="disconnected-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <h2>Session Ended</h2>
+          <p>The screen sharing session has ended.</p>
+          <button id="btnRestart" class="btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Start New Session
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SHARER MODE — Opens via link, shares screen -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div id="sharerMode" class="mode hidden">
+    <!-- State: Ready to share -->
+    <div id="sharerReady" class="view-state">
+      <div class="glass-card sharer-card">
+        <div class="sharer-icon">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="url(#sharerGradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <defs>
+              <linearGradient id="sharerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#34d399"/>
+                <stop offset="100%" style="stop-color:#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <h1 class="sharer-title">Screen Share Request</h1>
+        <p class="sharer-subtitle">Someone wants to view your screen. Your identity is not revealed. You have full control — stop sharing at any time.</p>
+        <button id="btnShare" class="btn-share">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          Share My Screen
+        </button>
+        <div class="privacy-features">
+          <div class="privacy-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>No app installation required</span>
+          </div>
+          <div class="privacy-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>Encrypted peer-to-peer connection</span>
+          </div>
+          <div class="privacy-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>Stop sharing anytime</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State: Connecting -->
+    <div id="sharerConnecting" class="view-state hidden">
+      <div class="glass-card">
+        <div class="connecting-state">
+          <div class="spinner"></div>
+          <h2>Connecting...</h2>
+          <p>Establishing secure connection</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- State: Sharing -->
+    <div id="sharerSharing" class="view-state hidden">
+      <div class="glass-card">
+        <div class="sharing-state">
+          <div class="live-indicator">
+            <div class="live-dot"></div>
+            <span>LIVE — Sharing Your Screen</span>
+          </div>
+          <div class="sharing-preview">
+            <video id="localPreview" autoplay playsinline muted></video>
+          </div>
+          <button id="btnStopShare" class="btn-danger">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            </svg>
+            Stop Sharing
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- State: Ended -->
+    <div id="sharerEnded" class="view-state hidden">
+      <div class="glass-card">
+        <div class="ended-state">
+          <div class="ended-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h2>Sharing Ended</h2>
+          <p>Your screen is no longer being shared. You can safely close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ERROR STATE                                 -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div id="errorMode" class="mode hidden">
+    <div class="glass-card">
+      <div class="error-state">
+        <div class="error-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <h2 id="errorTitle">Something went wrong</h2>
+        <p id="errorMessage">Unable to establish connection.</p>
+        <button id="btnRetry" class="btn-primary">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toastContainer" class="toast-container"></div>
+
+</body>
+</html>
